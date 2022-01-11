@@ -58,34 +58,19 @@ func execute(cmd *cobra.Command, args []string) error {
 	return viper.WriteConfig()
 }
 
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-
-	// find home directory.
-	home, err := os.UserHomeDir()
-	cobra.CheckErr(err)
-
-	// search config in home directory with name
-	// ".learning-go-cli" (without extension).
-	ext := "yaml"
-	name := ".learning-go-cli"
-	viper.AddConfigPath(home)
-	viper.SetConfigType(ext)
-	viper.SetConfigName(name)
-
-	// creates config file if it does not exist
+// createConfigFile creates the config file if it does not exist
+func createConfigFile(home string, name string, ext string) (string, error) {
 	fileName := fmt.Sprintf("%s/%s.%s", home, name, ext)
-	_, err = os.Stat(fileName)
+	_, err := os.Stat(fileName)
 	if os.IsNotExist(err) {
-		file, err2 := os.Create(fileName)
-		cobra.CheckErr(err2)
-		defer file.Close()
+		file, err := os.Create(fileName)
+		if err != nil {
+			defer file.Close()
+			return fileName, nil
+		}
+		return fileName, err
 	}
-
-	// if a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		cobra.CheckErr(err)
-	}
+	return fileName, nil
 }
 
 // addCommandWithConfigPreCheck adds a command to the rootCmd configuring a
@@ -103,6 +88,8 @@ func configPreCheck(cmd *cobra.Command, args []string) error {
 		viper.InConfig(APIEndpointFlag) &&
 		viper.InConfig(TokenEndpointFlag)
 
+	fmt.Printf("flag = %s, %s\n", viper.Get(TokenEndpointFlag), viper.ConfigFileUsed())
+
 	if !validConfig {
 		return fmt.Errorf(
 			"invalid CLI configuration: " +
@@ -110,4 +97,29 @@ func configPreCheck(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+// initConfig reads in config file and ENV variables if set
+func initConfig() {
+
+	// find home directory.
+	home, err := os.UserHomeDir()
+	cobra.CheckErr(err)
+
+	// search config in home directory with name
+	// ".learning-go-cli" (without extension).
+	ext := "yaml"
+	name := ".learning-go-cli"
+	viper.AddConfigPath(home)
+	viper.SetConfigType(ext)
+	viper.SetConfigName(name)
+
+	// creates config file if it does not exist
+	_, err = createConfigFile(home, name, ext)
+	cobra.CheckErr(err)
+
+	// if a config file is found, read it in.
+	if err := viper.ReadInConfig(); err == nil {
+		cobra.CheckErr(err)
+	}
 }
