@@ -23,7 +23,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
 	rootCmd.AddCommand(NewConfigureCommand())
+
 	addCommandWithConfigPreCheck(programming.NewProgrammingCmd())
 }

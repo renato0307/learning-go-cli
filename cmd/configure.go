@@ -26,16 +26,28 @@ func NewConfigureCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP(ClientIdFlag, "c", "", "the client id to call the API")
+	cmd.Flags().StringP(ClientIdFlag,
+		"c",
+		"",
+		"the client id to call the API")
 	cmd.MarkFlagRequired(ClientIdFlag)
 
-	cmd.Flags().StringP(ClientSecretFlag, "s", "", "the client secret to call the API")
+	cmd.Flags().StringP(ClientSecretFlag,
+		"s",
+		"",
+		"the client secret to call the API")
 	cmd.MarkFlagRequired(ClientSecretFlag)
 
-	cmd.Flags().StringP(APIEndpointFlag, "a", "", "the API endpoint")
+	cmd.Flags().StringP(APIEndpointFlag,
+		"a",
+		"",
+		"the API endpoint")
 	cmd.MarkFlagRequired(APIEndpointFlag)
 
-	cmd.Flags().StringP(TokenEndpointFlag, "t", "", "the endpoint to get authentication tokens")
+	cmd.Flags().StringP(TokenEndpointFlag,
+		"t",
+		"",
+		"the endpoint to get authentication tokens")
 	cmd.MarkFlagRequired(TokenEndpointFlag)
 
 	return cmd
@@ -56,6 +68,31 @@ func execute(cmd *cobra.Command, args []string) error {
 	viper.Set(TokenEndpointFlag, tokenEndpoint)
 
 	return viper.WriteConfig()
+}
+
+// initConfig reads in config file and ENV variables if set
+func initConfig() {
+
+	// find home directory.
+	home, err := os.UserHomeDir()
+	cobra.CheckErr(err)
+
+	// search config in home directory with name
+	// ".learning-go-cli" (without extension).
+	ext := "yaml"
+	name := ".learning-go-cli"
+	viper.AddConfigPath(home)
+	viper.SetConfigType(ext)
+	viper.SetConfigName(name)
+
+	// creates config file if it does not exist
+	_, err = createConfigFile(home, name, ext)
+	cobra.CheckErr(err)
+
+	// if a config file is found, read it in.
+	if err := viper.ReadInConfig(); err == nil {
+		cobra.CheckErr(err)
+	}
 }
 
 // createConfigFile creates the config file if it does not exist
@@ -97,29 +134,4 @@ func configPreCheck(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-// initConfig reads in config file and ENV variables if set
-func initConfig() {
-
-	// find home directory.
-	home, err := os.UserHomeDir()
-	cobra.CheckErr(err)
-
-	// search config in home directory with name
-	// ".learning-go-cli" (without extension).
-	ext := "yaml"
-	name := ".learning-go-cli"
-	viper.AddConfigPath(home)
-	viper.SetConfigType(ext)
-	viper.SetConfigName(name)
-
-	// creates config file if it does not exist
-	_, err = createConfigFile(home, name, ext)
-	cobra.CheckErr(err)
-
-	// if a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		cobra.CheckErr(err)
-	}
 }
