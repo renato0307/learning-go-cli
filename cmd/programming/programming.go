@@ -8,7 +8,7 @@ import (
 
 // NewProgrammingCmd represents the programming command
 func NewProgrammingCmd() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "programming",
 		Short: "Programming tools",
 		Long:  `Provides several programming tools like uuid generation, etc.`,
@@ -16,6 +16,10 @@ func NewProgrammingCmd() *cobra.Command {
 			return execute(cmd, args)
 		},
 	}
+
+	cmd.AddCommand(NewProgrammingUuidCmd())
+
+	return cmd
 }
 
 // execute implements all the logic associated with this command.
