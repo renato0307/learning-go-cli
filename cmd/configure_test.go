@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/renato0307/learning-go-cli/internal/config"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,10 +36,10 @@ func TestNewConfigureCommand(t *testing.T) {
 	assert.NotEmpty(t, cmd.Short, "Short description cannot be empty")
 	assert.NotEmpty(t, cmd.Long, "Long description cannot be empty")
 	assert.NotNil(t, cmd.RunE, "The RunE function must be defined")
-	assert.NotNil(t, cmd.Flags().Lookup(ClientIdFlag))
-	assert.NotNil(t, cmd.Flags().Lookup(ClientSecretFlag))
-	assert.NotNil(t, cmd.Flags().Lookup(APIEndpointFlag))
-	assert.NotNil(t, cmd.Flags().Lookup(TokenEndpointFlag))
+	assert.NotNil(t, cmd.Flags().Lookup(config.ClientIdFlag))
+	assert.NotNil(t, cmd.Flags().Lookup(config.ClientSecretFlag))
+	assert.NotNil(t, cmd.Flags().Lookup(config.APIEndpointFlag))
+	assert.NotNil(t, cmd.Flags().Lookup(config.TokenEndpointFlag))
 }
 
 func TestExecute(t *testing.T) {
@@ -58,10 +59,10 @@ func TestExecute(t *testing.T) {
 
 	// assert
 	assert.NoError(t, err)
-	assert.Equal(t, "fake-c", viper.GetViper().Get(ClientIdFlag))
-	assert.Equal(t, "fake-s", viper.GetViper().Get(ClientSecretFlag))
-	assert.Equal(t, "fake-a", viper.GetViper().Get(APIEndpointFlag))
-	assert.Equal(t, "fake-t", viper.GetViper().Get(TokenEndpointFlag))
+	assert.Equal(t, "fake-c", viper.GetViper().Get(config.ClientIdFlag))
+	assert.Equal(t, "fake-s", viper.GetViper().Get(config.ClientSecretFlag))
+	assert.Equal(t, "fake-a", viper.GetViper().Get(config.APIEndpointFlag))
+	assert.Equal(t, "fake-t", viper.GetViper().Get(config.TokenEndpointFlag))
 }
 
 func TestCreateConfigFile(t *testing.T) {

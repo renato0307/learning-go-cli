@@ -4,15 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/renato0307/learning-go-cli/internal/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-)
-
-const (
-	ClientIdFlag      string = "client-id"
-	ClientSecretFlag  string = "client-secret"
-	APIEndpointFlag   string = "api-endpoint"
-	TokenEndpointFlag string = "token-endpoint"
 )
 
 // NewConfigureCommand creates the the configure command
@@ -26,46 +20,46 @@ func NewConfigureCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP(ClientIdFlag,
+	cmd.Flags().StringP(config.ClientIdFlag,
 		"c",
 		"",
 		"the client id to call the API")
-	cmd.MarkFlagRequired(ClientIdFlag)
+	cmd.MarkFlagRequired(config.ClientIdFlag)
 
-	cmd.Flags().StringP(ClientSecretFlag,
+	cmd.Flags().StringP(config.ClientSecretFlag,
 		"s",
 		"",
 		"the client secret to call the API")
-	cmd.MarkFlagRequired(ClientSecretFlag)
+	cmd.MarkFlagRequired(config.ClientSecretFlag)
 
-	cmd.Flags().StringP(APIEndpointFlag,
+	cmd.Flags().StringP(config.APIEndpointFlag,
 		"a",
 		"",
 		"the API endpoint")
-	cmd.MarkFlagRequired(APIEndpointFlag)
+	cmd.MarkFlagRequired(config.APIEndpointFlag)
 
-	cmd.Flags().StringP(TokenEndpointFlag,
+	cmd.Flags().StringP(config.TokenEndpointFlag,
 		"t",
 		"",
 		"the endpoint to get authentication tokens")
-	cmd.MarkFlagRequired(TokenEndpointFlag)
+	cmd.MarkFlagRequired(config.TokenEndpointFlag)
 
 	return cmd
 }
 
 // execute implements all the logic associated with this command.
 func execute(cmd *cobra.Command, args []string) error {
-	clientId, _ := cmd.Flags().GetString(ClientIdFlag)
-	viper.Set(ClientIdFlag, clientId)
+	clientId, _ := cmd.Flags().GetString(config.ClientIdFlag)
+	viper.Set(config.ClientIdFlag, clientId)
 
-	clientSecret, _ := cmd.Flags().GetString(ClientSecretFlag)
-	viper.Set(ClientSecretFlag, clientSecret)
+	clientSecret, _ := cmd.Flags().GetString(config.ClientSecretFlag)
+	viper.Set(config.ClientSecretFlag, clientSecret)
 
-	apiEndpoint, _ := cmd.Flags().GetString(APIEndpointFlag)
-	viper.Set(APIEndpointFlag, apiEndpoint)
+	apiEndpoint, _ := cmd.Flags().GetString(config.APIEndpointFlag)
+	viper.Set(config.APIEndpointFlag, apiEndpoint)
 
-	tokenEndpoint, _ := cmd.Flags().GetString(TokenEndpointFlag)
-	viper.Set(TokenEndpointFlag, tokenEndpoint)
+	tokenEndpoint, _ := cmd.Flags().GetString(config.TokenEndpointFlag)
+	viper.Set(config.TokenEndpointFlag, tokenEndpoint)
 
 	return viper.WriteConfig()
 }
@@ -120,12 +114,14 @@ func addCommandWithConfigPreCheck(cmd *cobra.Command) {
 
 // configPreCheck verifies if the base configuration is set
 func configPreCheck(cmd *cobra.Command, args []string) error {
-	validConfig := viper.InConfig(ClientIdFlag) &&
-		viper.InConfig(ClientSecretFlag) &&
-		viper.InConfig(APIEndpointFlag) &&
-		viper.InConfig(TokenEndpointFlag)
+	validConfig := viper.InConfig(config.ClientIdFlag) &&
+		viper.InConfig(config.ClientSecretFlag) &&
+		viper.InConfig(config.APIEndpointFlag) &&
+		viper.InConfig(config.TokenEndpointFlag)
 
-	fmt.Printf("flag = %s, %s\n", viper.Get(TokenEndpointFlag), viper.ConfigFileUsed())
+	fmt.Printf("flag = %s, %s\n",
+		viper.Get(config.TokenEndpointFlag),
+		viper.ConfigFileUsed())
 
 	if !validConfig {
 		return fmt.Errorf(
