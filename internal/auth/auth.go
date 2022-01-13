@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/renato0307/learning-go-cli/internal/config"
-	"github.com/spf13/viper"
 )
 
 // AccessToken represents an OAuth2 access token obtained using the client
@@ -18,7 +17,6 @@ type AccessToken struct {
 	AccessToken string `json:"access_token"`
 	ExpiresIn   int    `json:"expires_in"`
 	TokenType   string `json:"token_type"`
-	IdToken     string `json:"id_token"`
 }
 
 // NewAccessToken fetches a new access token from the OAuth2 server
@@ -26,23 +24,26 @@ func NewAccessToken() (AccessToken, error) {
 
 	accessToken := AccessToken{}
 
-	body := strings.NewReader("grant_type=client_credentials&scope=")
+	clientId := config.GetString(config.ClientIdFlag)
+	clientSecret := config.GetString(config.ClientSecretFlag)
 
-	tokenEndpoint := viper.Get(config.TokenEndpointFlag)
-	request, err := http.NewRequest("POST", tokenEndpoint.(string), body)
+	bodyContent := fmt.Sprintf(
+		"grant_type=client_credentials&client_id=%s&scope=",
+		clientId)
+	body := strings.NewReader(bodyContent)
+
+	tokenEndpoint := config.GetString(config.TokenEndpointFlag)
+	request, err := http.NewRequest("POST", tokenEndpoint, body)
 	if err != nil {
 		return accessToken, err
 	}
 
-	clientId := viper.Get(config.ClientIdFlag)
-	clientSecret := viper.Get(config.ClientSecretFlag)
 	clientIdAndSecret := fmt.Sprintf("%s:%s", clientId, clientSecret)
 	credentials := base64.StdEncoding.EncodeToString([]byte(clientIdAndSecret))
-	authHeader := fmt.Sprintf("Bearer %s", credentials)
-
+	authHeader := fmt.Sprintf("Basic %s", credentials)
 	request.Header = map[string][]string{
-		"Authentication": {authHeader},
-		"Content-Type":   {"application/x-www-form-urlencoded"},
+		"Authorization": {authHeader},
+		"Content-Type":  {"application/x-www-form-urlencoded"},
 	}
 
 	response, err := http.DefaultClient.Do(request)
@@ -55,6 +56,10 @@ func NewAccessToken() (AccessToken, error) {
 		return accessToken, err
 	}
 	defer response.Body.Close()
+
+	if response.StatusCode != 200 {
+		return accessToken, fmt.Errorf("error getting token: %s", responseContent)
+	}
 
 	err = json.Unmarshal(responseContent, &accessToken)
 

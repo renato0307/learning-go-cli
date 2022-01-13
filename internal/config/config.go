@@ -75,10 +75,6 @@ func ConfigPreCheck(cmd *cobra.Command, args []string) error {
 		viper.InConfig(APIEndpointFlag) &&
 		viper.InConfig(TokenEndpointFlag)
 
-	fmt.Printf("flag = %s, %s\n",
-		viper.Get(TokenEndpointFlag),
-		viper.ConfigFileUsed())
-
 	if !validConfig {
 		return fmt.Errorf(
 			"invalid CLI configuration: " +
