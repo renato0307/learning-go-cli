@@ -9,7 +9,6 @@ import (
 )
 
 func TestNewConfigureCommand(t *testing.T) {
-
 	// act
 	cmd := NewConfigureCommand()
 
@@ -25,7 +24,6 @@ func TestNewConfigureCommand(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-
 	// arrange
 	cmd := NewConfigureCommand()
 

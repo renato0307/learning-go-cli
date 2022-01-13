@@ -26,13 +26,5 @@ func init() {
 	cobra.OnInitialize(config.InitConfig)
 	rootCmd.AddCommand(NewConfigureCommand())
 
-	addCommandWithConfigPreCheck(programming.NewProgrammingCmd())
-}
-
-// addCommandWithConfigPreCheck adds a command to the rootCmd configuring a
-// PreRunE function to ensure the configure command is executed before
-// any other command
-func addCommandWithConfigPreCheck(cmd *cobra.Command) {
-	cmd.PreRunE = config.ConfigPreCheck
-	rootCmd.AddCommand(cmd)
+	config.AddCommandWithConfigPreCheck(rootCmd, programming.NewProgrammingCmd())
 }

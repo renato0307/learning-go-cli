@@ -122,3 +122,11 @@ func CreateFakeConfigFile(t *testing.T) string {
 
 	return fileName
 }
+
+// addCommandWithConfigPreCheck adds a command to the parentCmd configuring a
+// PreRunE function to ensure the configure command is executed before
+// any other command
+func AddCommandWithConfigPreCheck(parentCmd *cobra.Command, cmd *cobra.Command) {
+	cmd.PreRunE = ConfigPreCheck
+	parentCmd.AddCommand(cmd)
+}

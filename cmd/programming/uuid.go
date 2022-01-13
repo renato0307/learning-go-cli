@@ -8,24 +8,36 @@ import (
 
 	"github.com/renato0307/learning-go-cli/internal/auth"
 	"github.com/renato0307/learning-go-cli/internal/config"
+	"github.com/renato0307/learning-go-cli/internal/iostreams"
 	"github.com/spf13/cobra"
 )
 
+const NoHiphensFlag string = "no-hiphens"
+
 // NewProgrammingCmd represents the programming command
-func NewProgrammingUuidCmd() *cobra.Command {
-	return &cobra.Command{
+func NewProgrammingUuidCmd(iostreams *iostreams.IOStreams) *cobra.Command {
+	cmd := &cobra.Command{
 		Use:   "uuid",
 		Short: "Generates an UUID",
 		Long:  `Generates an UUID, with or without hiphens.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			executeProgrammingUuid(cmd, args)
+			executeProgrammingUuid(cmd, args, iostreams)
 		},
 	}
+
+	cmd.Flags().Bool(NoHiphensFlag,
+		false,
+		"if set to true, the UUID generated will not contains hiphens")
+
+	return cmd
 }
 
 // execute implements all the logic associated with this command.
 // In this case as it is an aggregation command will return an error
-func executeProgrammingUuid(cmd *cobra.Command, args []string) {
+func executeProgrammingUuid(cmd *cobra.Command,
+	args []string,
+	iostreams *iostreams.IOStreams) {
+
 	apiEndpoint := config.GetString(config.APIEndpointFlag)
 	realUrl := fmt.Sprintf("%s/programming/uuid", apiEndpoint)
 	request, err := http.NewRequest("POST", realUrl, nil)
@@ -64,7 +76,7 @@ func executeProgrammingUuid(cmd *cobra.Command, args []string) {
 	json.Unmarshal(uuid, &anyJson)
 	output, _ := json.MarshalIndent(anyJson, "", "  ")
 
-	_, err = fmt.Println(string(output))
+	_, err = fmt.Fprintln(iostreams.Out, string(output))
 	if err != nil {
 		cobra.CheckErr(fmt.Errorf("error writting to the output: %s", err))
 	}

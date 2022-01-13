@@ -8,7 +8,7 @@ import (
 
 func TestNewProgrammingCmd(t *testing.T) {
 	// act
-	cmd := NewProgrammingCmd()
+	cmd := NewProgrammingCmd(nil)
 
 	// assert
 	assert.Equal(t, "programming", cmd.Use)
@@ -19,7 +19,7 @@ func TestNewProgrammingCmd(t *testing.T) {
 
 func TestExecute(t *testing.T) {
 	// arrange
-	cmd := NewProgrammingCmd()
+	cmd := NewProgrammingCmd(nil)
 
 	// act
 	err := execute(cmd, []string{})

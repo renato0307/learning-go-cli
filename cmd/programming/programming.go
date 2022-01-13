@@ -3,11 +3,13 @@ package programming
 import (
 	"fmt"
 
+	"github.com/renato0307/learning-go-cli/internal/config"
+	"github.com/renato0307/learning-go-cli/internal/iostreams"
 	"github.com/spf13/cobra"
 )
 
 // NewProgrammingCmd represents the programming command
-func NewProgrammingCmd() *cobra.Command {
+func NewProgrammingCmd(iostreams *iostreams.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "programming",
 		Short: "Programming tools",
@@ -17,7 +19,7 @@ func NewProgrammingCmd() *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(NewProgrammingUuidCmd())
+	config.AddCommandWithConfigPreCheck(cmd, NewProgrammingUuidCmd(iostreams))
 
 	return cmd
 }
