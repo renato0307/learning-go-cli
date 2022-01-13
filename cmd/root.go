@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/renato0307/learning-go-cli/cmd/programming"
 	"github.com/renato0307/learning-go-cli/internal/config"
+	"github.com/renato0307/learning-go-cli/internal/iostreams"
 	"github.com/spf13/cobra"
 )
 
@@ -23,8 +26,11 @@ func Execute() {
 }
 
 func init() {
+	iostreams := &iostreams.IOStreams{Out: os.Stdout}
+
 	cobra.OnInitialize(config.InitConfig)
 	rootCmd.AddCommand(NewConfigureCommand())
 
-	config.AddCommandWithConfigPreCheck(rootCmd, programming.NewProgrammingCmd())
+	programmingCmd := programming.NewProgrammingCmd(iostreams)
+	config.AddCommandWithConfigPreCheck(rootCmd, programmingCmd)
 }
