@@ -11,16 +11,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewJWT(t *testing.T) {
+func TestNewAccessToken(t *testing.T) {
 
 	testCases := []struct {
-		Token      accessToken
+		Token      AccessToken
 		StatusCode int
 		Purpose    string
 		ErrorNil   bool
 	}{
 		{
-			Token: accessToken{
+			Token: AccessToken{
 				AccessToken: "token",
 				ExpiresIn:   1000,
 				TokenType:   "Bearer",
@@ -31,13 +31,13 @@ func TestNewJWT(t *testing.T) {
 			ErrorNil:   true,
 		},
 		{
-			Token:      accessToken{},
+			Token:      AccessToken{},
 			StatusCode: 500,
 			Purpose:    "get token failure case",
 			ErrorNil:   false,
 		},
 		{
-			Token:      accessToken{},
+			Token:      AccessToken{},
 			StatusCode: 200,
 			Purpose:    "invalid token",
 			ErrorNil:   false,
@@ -54,10 +54,10 @@ func TestNewJWT(t *testing.T) {
 
 		viper.Set(config.TokenEndpointFlag, srv.URL)
 
-		jwt, err := NewJWT()
+		token, err := NewAccessToken()
 
 		assert.Nil(t, err, tc.ErrorNil)
-		assert.Equal(t, tc.Token.AccessToken, jwt)
+		assert.Equal(t, tc.Token, token)
 	}
 
 }

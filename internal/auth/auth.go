@@ -12,21 +12,26 @@ import (
 	"github.com/spf13/viper"
 )
 
-type accessToken struct {
+// AccessToken represents an OAuth2 access token obtained using the client
+// credentials flow
+type AccessToken struct {
 	AccessToken string `json:"access_token"`
 	ExpiresIn   int    `json:"expires_in"`
 	TokenType   string `json:"token_type"`
 	IdToken     string `json:"id_token"`
 }
 
-func NewJWT() (string, error) {
+// NewAccessToken fetches a new access token from the OAuth2 server
+func NewAccessToken() (AccessToken, error) {
+
+	accessToken := AccessToken{}
 
 	body := strings.NewReader("grant_type=client_credentials&scope=")
 
 	tokenEndpoint := viper.Get(config.TokenEndpointFlag)
 	request, err := http.NewRequest("POST", tokenEndpoint.(string), body)
 	if err != nil {
-		return "", err
+		return accessToken, err
 	}
 
 	clientId := viper.Get(config.ClientIdFlag)
@@ -42,20 +47,16 @@ func NewJWT() (string, error) {
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return "", err
+		return accessToken, err
 	}
 
 	responseContent, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", err
+		return accessToken, err
 	}
 	defer response.Body.Close()
 
-	jwtResponse := accessToken{}
-	err = json.Unmarshal(responseContent, &jwtResponse)
-	if err != nil {
-		return "", err
-	}
+	err = json.Unmarshal(responseContent, &accessToken)
 
-	return jwtResponse.AccessToken, nil
+	return accessToken, err
 }

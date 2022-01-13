@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/renato0307/learning-go-cli/internal/auth"
+	"github.com/renato0307/learning-go-cli/internal/config"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // NewProgrammingCmd represents the programming command
@@ -25,19 +25,19 @@ func NewProgrammingUuidCmd() *cobra.Command {
 // execute implements all the logic associated with this command.
 // In this case as it is an aggregation command will return an error
 func executeProgrammingUuid(cmd *cobra.Command, args []string) error {
-	apiEndpoint := viper.Get(config.APIEndpointFlag)
+	apiEndpoint := config.GetString(config.APIEndpointFlag)
 	realUrl := fmt.Sprintf("%s/programming/uuid", apiEndpoint)
 	request, err := http.NewRequest("POST", realUrl, nil)
 	if err != nil {
 		return fmt.Errorf("error creating the request to call the API: %s", err)
 	}
 
-	jwt, err := auth.NewJWT()
+	token, err := auth.NewAccessToken()
 	if err != nil {
 		return fmt.Errorf("error calling the JWT to call the API: %s", err)
 	}
 	request.Header = map[string][]string{
-		"Authentication": {jwt},
+		"Authentication": {token.AccessToken},
 	}
 
 	response, err := http.DefaultClient.Do(request)

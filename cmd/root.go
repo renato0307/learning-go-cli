@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/renato0307/learning-go-cli/cmd/programming"
+	"github.com/renato0307/learning-go-cli/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -22,8 +23,16 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(config.InitConfig)
 	rootCmd.AddCommand(NewConfigureCommand())
 
-	rootCmd.AddCommand(programming.NewProgrammingCmd()) // new
+	addCommandWithConfigPreCheck(programming.NewProgrammingCmd())
+}
+
+// addCommandWithConfigPreCheck adds a command to the rootCmd configuring a
+// PreRunE function to ensure the configure command is executed before
+// any other command
+func addCommandWithConfigPreCheck(cmd *cobra.Command) {
+	cmd.PreRunE = config.ConfigPreCheck
+	rootCmd.AddCommand(cmd)
 }
