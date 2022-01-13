@@ -20,7 +20,7 @@ func TestNewProgrammingUuidCmd(t *testing.T) {
 	cmd := NewProgrammingUuidCmd(iostreams)
 
 	// assert
-	assert.Equal(t, "configure", cmd.Use)
+	assert.Equal(t, "uuid", cmd.Use)
 	assert.NotEmpty(t, cmd.Short, "Short description cannot be empty")
 	assert.NotEmpty(t, cmd.Long, "Long description cannot be empty")
 	assert.NotNil(t, cmd.Run, "The Run function must be defined")
