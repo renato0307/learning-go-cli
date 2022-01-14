@@ -44,37 +44,39 @@ func TestNewAccessToken(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// to test the code sends an authorization token
-			if r.Header.Get("Authorization") == "" {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("Unauthorized"))
-				return
-			}
+		// arrange
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// to test the code sends an authorization token
+				if r.Header.Get("Authorization") == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte("Unauthorized"))
+					return
+				}
 
-			// writes the response for other cases
-			// we use the Raw field to form malformed responses
-			w.WriteHeader(tc.StatusCode)
-			if tc.Raw != "" {
-				w.Write([]byte(tc.Raw))
-			} else {
-				body, _ := json.Marshal(tc.Token)
-				w.Write(body)
-			}
-		}))
+				// writes the response for other cases
+				// we use the Raw field to form malformed responses
+				w.WriteHeader(tc.StatusCode)
+				if tc.Raw != "" {
+					w.Write([]byte(tc.Raw))
+				} else {
+					body, _ := json.Marshal(tc.Token)
+					w.Write(body)
+				}
+			}))
 		defer srv.Close()
 
 		config.Set(config.TokenEndpointFlag, srv.URL)
 
+		// act
 		token, err := NewAccessToken()
 
+		// assert
 		if tc.ErrorNil {
 			assert.NoError(t, err, "error found for "+tc.Purpose)
 		} else {
 			assert.Error(t, err, "error not found for "+tc.Purpose)
 		}
-
 		assert.Equal(t, tc.Token, token, "invalid token for "+tc.Purpose)
 	}
-
 }

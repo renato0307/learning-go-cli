@@ -26,7 +26,7 @@ func NewProgrammingUuidCmd(iostreams *iostreams.IOStreams) *cobra.Command {
 
 	cmd.Flags().Bool(NoHyphensFlag,
 		false,
-		"if set to true, the UUID generated will not contains hyphens")
+		"if set the UUID generated will not contains hyphens")
 
 	return cmd
 }
@@ -44,7 +44,7 @@ func executeProgrammingUuid(iostreams *iostreams.IOStreams) func(cmd *cobra.Comm
 			return fmt.Errorf("error creating the request to call the API: %w", err)
 		}
 
-		// handles the no hyphens case
+		// handles the "no-hyphens" flag
 		noHyphens, err := cmd.Flags().GetBool(NoHyphensFlag)
 		if err != nil {
 			return err
@@ -86,7 +86,7 @@ func executeProgrammingUuid(iostreams *iostreams.IOStreams) func(cmd *cobra.Comm
 			return fmt.Errorf("error reading the UUID: %w", err)
 		}
 
-		// parse and print response
+		// parse and print response as indented JSON
 		var anyJson map[string]interface{}
 		err = json.Unmarshal(uuid, &anyJson)
 		if err != nil {
@@ -96,7 +96,7 @@ func executeProgrammingUuid(iostreams *iostreams.IOStreams) func(cmd *cobra.Comm
 
 		_, err = fmt.Fprintln(iostreams.Out, string(output))
 		if err != nil {
-			return fmt.Errorf("error writting to the output: %w", err)
+			return fmt.Errorf("error writing to the output: %w", err)
 		}
 
 		return nil
