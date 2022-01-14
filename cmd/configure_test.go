@@ -23,7 +23,7 @@ func TestNewConfigureCommand(t *testing.T) {
 	assert.NotNil(t, cmd.Flags().Lookup(config.TokenEndpointFlag))
 }
 
-func TestExecute(t *testing.T) {
+func TestExecuteConfigure(t *testing.T) {
 	// arrange
 	cmd := NewConfigureCommand()
 

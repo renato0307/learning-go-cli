@@ -12,7 +12,7 @@ func NewConfigureCommand() *cobra.Command {
 		Short: "Configures the CLI",
 		Long:  `Allows to define the API endpoints and the client credentials`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return execute(cmd, args)
+			return executeConfigure(cmd, args)
 		},
 	}
 
@@ -43,8 +43,8 @@ func NewConfigureCommand() *cobra.Command {
 	return cmd
 }
 
-// execute implements all the logic associated with this command.
-func execute(cmd *cobra.Command, args []string) error {
+// executeConfigure implements all the logic associated with this command.
+func executeConfigure(cmd *cobra.Command, args []string) error {
 	clientId, _ := cmd.Flags().GetString(config.ClientIdFlag)
 	clientSecret, _ := cmd.Flags().GetString(config.ClientSecretFlag)
 	apiEndpoint, _ := cmd.Flags().GetString(config.APIEndpointFlag)

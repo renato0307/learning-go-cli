@@ -102,3 +102,25 @@ func TestWriteAuthenticationConfig(t *testing.T) {
 	assert.Equal(t, GetString(TokenEndpointFlag), tokenEndpoint)
 	assert.Equal(t, GetString(APIEndpointFlag), apiEndpoint)
 }
+
+func TestInitConfig(t *testing.T) {
+	// act
+	InitConfig()
+
+	// assert
+	assert.NotEmpty(t, viper.ConfigFileUsed())
+	assert.Contains(t, viper.ConfigFileUsed(), "learning-go-cli")
+}
+
+func TestAddCommandWithConfigPreCheck(t *testing.T) {
+	// arrange
+	cmd := &cobra.Command{}
+	parentCmd := &cobra.Command{}
+
+	// act
+	AddCommandWithConfigPreCheck(parentCmd, cmd)
+
+	// assert
+	assert.NotNil(t, cmd.PreRunE)
+	assert.Contains(t, parentCmd.Commands(), cmd)
+}

@@ -58,7 +58,7 @@ func executeProgrammingUuid(iostreams *iostreams.IOStreams) func(cmd *cobra.Comm
 		// adds authentication
 		token, err := auth.NewAccessToken()
 		if err != nil {
-			return fmt.Errorf("error calling the JWT to call the API: %w", err)
+			return fmt.Errorf("error getting the JWT to call the API: %w", err)
 		}
 		request.Header = map[string][]string{
 			"Authentication": {token.AccessToken},
