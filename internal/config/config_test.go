@@ -44,7 +44,7 @@ func TestCreateConfigFile(t *testing.T) {
 	name := fmt.Sprintf(".learning-go-cli-test-%d", rand.Uint64())
 
 	// act
-	fileName, err := createConfigFile(home, name, ext)
+	fileName, err := CreateConfigFile(home, name, ext)
 
 	// assert
 	if err != nil {

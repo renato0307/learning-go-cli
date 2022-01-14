@@ -19,7 +19,6 @@ func NewAuthTestServer() *httptest.Server {
 			w.Write([]byte("Unauthorized"))
 			return
 		}
-
 		w.WriteHeader(http.StatusOK)
 		body, _ := json.Marshal(auth.AccessToken{})
 		w.Write(body)
@@ -39,7 +38,6 @@ func NewAPITestServer(body string, expectedQueryParams []string, httpStatus int)
 				return
 			}
 		}
-
 		w.WriteHeader(httpStatus)
 		w.Write([]byte(body))
 	}))
