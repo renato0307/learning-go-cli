@@ -2,6 +2,7 @@ package testhelpers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 
@@ -29,9 +30,17 @@ func NewAuthTestServer() *httptest.Server {
 
 // NewAPITestServer create an httptest.Server to test command requiring
 // to call the API
-func NewAPITestServer(body string) *httptest.Server {
+func NewAPITestServer(body string, expectedQueryParams []string, httpStatus int) *httptest.Server {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
+		for _, qp := range expectedQueryParams {
+			if r.URL.Query().Get(qp) == "" {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(fmt.Sprintf("parameter %s expected", qp)))
+				return
+			}
+		}
+
+		w.WriteHeader(httpStatus)
 		w.Write([]byte(body))
 	}))
 

@@ -3,6 +3,7 @@ package programming
 import (
 	"bytes"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/renato0307/learning-go-cli/internal/config"
@@ -23,27 +24,87 @@ func TestNewProgrammingUuidCmd(t *testing.T) {
 	assert.Equal(t, "uuid", cmd.Use)
 	assert.NotEmpty(t, cmd.Short, "Short description cannot be empty")
 	assert.NotEmpty(t, cmd.Long, "Long description cannot be empty")
-	assert.NotNil(t, cmd.Run, "The Run function must be defined")
-	assert.NotNil(t, cmd.Flags().Lookup(NoHiphensFlag))
+	assert.NotNil(t, cmd.RunE, "The RunE function must be defined")
+	assert.NotNil(t, cmd.Flags().Lookup(NoHyphensFlag))
 }
 
 func TestExecuteProgrammingUuid(t *testing.T) {
-	// arrange
-	buffer := &bytes.Buffer{}
-	iostreams := &iostreams.IOStreams{Out: buffer}
-	cmd := NewProgrammingUuidCmd(iostreams)
-
-	tokenSrv := testhelpers.NewAuthTestServer()
-	config.Set(config.TokenEndpointFlag, tokenSrv.URL)
 
 	uuid := "da308fbd-cba9-485a-b4c1-6677aaa732a4"
-	apiResponse := fmt.Sprintf("{\"uuid\": \"%s\"}", uuid)
-	apiSrv := testhelpers.NewAPITestServer(apiResponse)
-	config.Set(config.APIEndpointFlag, apiSrv.URL)
+	uuidNoHyphens := "da308fbdcba9485ab4c16677aaa732a4"
 
-	// act
-	executeProgrammingUuid(cmd, []string{}, iostreams)
+	testCases := []struct {
+		ApiStatusCode     int
+		ApiResponse       string
+		ApiExpectedParams []string
+		OutputContains    string
+		Args              []string
+		ErrorNil          bool
+		Purpose           string
+	}{
+		{
+			ApiStatusCode:  http.StatusOK,
+			ApiResponse:    fmt.Sprintf("{\"uuid\": \"%s\"}", uuid),
+			Args:           []string{},
+			OutputContains: uuid,
+			ErrorNil:       true,
+			Purpose:        "success case",
+		},
+		{
+			ApiStatusCode:     http.StatusOK,
+			ApiResponse:       fmt.Sprintf("{\"uuid\": \"%s\"}", uuidNoHyphens),
+			ApiExpectedParams: []string{"no-hyphens"},
+			OutputContains:    uuidNoHyphens,
+			Args:              []string{fmt.Sprintf("--%s", NoHyphensFlag)},
+			ErrorNil:          true,
+			Purpose:           "success case with no hyphens",
+		},
+		{
+			ApiStatusCode: http.StatusBadRequest,
+			ApiResponse:   "{\"message\": \"request is malformed\"}",
+			Args:          []string{},
+			ErrorNil:      false,
+			Purpose:       "api returns error",
+		},
+		{
+			ApiStatusCode: http.StatusOK,
+			ApiResponse:   "something that is not a valid json",
+			Args:          []string{},
+			ErrorNil:      false,
+			Purpose:       "error on invalid json",
+		},
+	}
 
-	// assert
-	assert.Contains(t, buffer.String(), uuid)
+	for _, tc := range testCases {
+		// arrange
+		buffer := &bytes.Buffer{}
+		iostreams := &iostreams.IOStreams{Out: buffer}
+		cmd := NewProgrammingUuidCmd(iostreams)
+
+		tokenSrv := testhelpers.NewAuthTestServer()
+		defer tokenSrv.Close()
+		config.Set(config.TokenEndpointFlag, tokenSrv.URL)
+
+		apiSrv := testhelpers.NewAPITestServer(
+			tc.ApiResponse,
+			tc.ApiExpectedParams,
+			tc.ApiStatusCode)
+		defer apiSrv.Close()
+		config.Set(config.APIEndpointFlag, apiSrv.URL)
+
+		// act
+		cmd.SetArgs(tc.Args)
+		err := cmd.Execute()
+
+		// assert
+		if tc.ErrorNil {
+			assert.NoError(t, err, "error found for "+tc.Purpose)
+			assert.Contains(t,
+				buffer.String(),
+				tc.OutputContains,
+				"output is for right for "+tc.Purpose)
+		} else {
+			assert.Error(t, err, "error not found for "+tc.Purpose)
+		}
+	}
 }
