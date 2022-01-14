@@ -1,16 +1,18 @@
 package cmd
 
 import (
+	"bytes"
 	"os"
 	"testing"
 
 	"github.com/renato0307/learning-go-cli/internal/config"
+	"github.com/renato0307/learning-go-cli/internal/iostreams"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewConfigureCommand(t *testing.T) {
 	// act
-	cmd := NewConfigureCommand()
+	cmd := NewConfigureCommand(nil)
 
 	// assert
 	assert.Equal(t, "configure", cmd.Use)
@@ -25,7 +27,10 @@ func TestNewConfigureCommand(t *testing.T) {
 
 func TestExecuteConfigure(t *testing.T) {
 	// arrange
-	cmd := NewConfigureCommand()
+	// arrange
+	buffer := &bytes.Buffer{}
+	iostreams := &iostreams.IOStreams{Out: buffer}
+	cmd := NewConfigureCommand(iostreams)
 
 	fileName := config.CreateFakeConfigFile(t)
 	defer os.Remove(fileName)
@@ -45,4 +50,5 @@ func TestExecuteConfigure(t *testing.T) {
 	assert.Equal(t, "fake-s", config.GetString(config.ClientSecretFlag))
 	assert.Equal(t, "fake-a", config.GetString(config.APIEndpointFlag))
 	assert.Equal(t, "fake-t", config.GetString(config.TokenEndpointFlag))
+	assert.Equal(t, "configuration updated!", buffer.String())
 }

@@ -14,9 +14,7 @@ func NewProgrammingCmd(iostreams *iostreams.IOStreams) *cobra.Command {
 		Use:   "programming",
 		Short: "Programming tools",
 		Long:  `Provides several programming tools like uuid generation, etc.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return execute(cmd, args)
-		},
+		RunE:  executeProgramming(),
 	}
 
 	config.AddCommandWithConfigPreCheck(cmd, NewProgrammingUuidCmd(iostreams))
@@ -24,8 +22,10 @@ func NewProgrammingCmd(iostreams *iostreams.IOStreams) *cobra.Command {
 	return cmd
 }
 
-// execute implements all the logic associated with this command.
+// executeProgramming implements all the logic associated with this command.
 // In this case as it is an aggregation command will return an error
-func execute(cmd *cobra.Command, args []string) error {
-	return fmt.Errorf("must specify a subcommand")
+func executeProgramming() func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		return fmt.Errorf("must specify a subcommand")
+	}
 }

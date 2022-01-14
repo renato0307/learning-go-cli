@@ -22,7 +22,7 @@ func TestExecute(t *testing.T) {
 	cmd := NewProgrammingCmd(nil)
 
 	// act
-	err := execute(cmd, []string{})
+	err := cmd.Execute()
 
 	// assert
 	assert.Error(t, err)

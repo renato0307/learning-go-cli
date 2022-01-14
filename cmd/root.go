@@ -26,10 +26,11 @@ func Execute() {
 }
 
 func init() {
+	cobra.OnInitialize(config.InitConfig)
+
 	iostreams := &iostreams.IOStreams{Out: os.Stdout}
 
-	cobra.OnInitialize(config.InitConfig)
-	rootCmd.AddCommand(NewConfigureCommand())
+	rootCmd.AddCommand(NewConfigureCommand(iostreams))
 
 	programmingCmd := programming.NewProgrammingCmd(iostreams)
 	config.AddCommandWithConfigPreCheck(rootCmd, programmingCmd)

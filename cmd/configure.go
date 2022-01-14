@@ -1,19 +1,20 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/renato0307/learning-go-cli/internal/config"
+	"github.com/renato0307/learning-go-cli/internal/iostreams"
 	"github.com/spf13/cobra"
 )
 
 // NewConfigureCommand creates the the configure command
-func NewConfigureCommand() *cobra.Command {
+func NewConfigureCommand(iostreams *iostreams.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "configure",
 		Short: "Configures the CLI",
 		Long:  `Allows to define the API endpoints and the client credentials`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return executeConfigure(cmd, args)
-		},
+		RunE:  executeConfigure(iostreams),
 	}
 
 	cmd.Flags().StringP(config.ClientIdFlag,
@@ -44,16 +45,24 @@ func NewConfigureCommand() *cobra.Command {
 }
 
 // executeConfigure implements all the logic associated with this command.
-func executeConfigure(cmd *cobra.Command, args []string) error {
-	clientId, _ := cmd.Flags().GetString(config.ClientIdFlag)
-	clientSecret, _ := cmd.Flags().GetString(config.ClientSecretFlag)
-	apiEndpoint, _ := cmd.Flags().GetString(config.APIEndpointFlag)
-	tokenEndpoint, _ := cmd.Flags().GetString(config.TokenEndpointFlag)
+func executeConfigure(iostreams *iostreams.IOStreams) func(cmd *cobra.Command, args []string) error {
 
-	return config.WriteAuthenticationConfig(
-		clientId,
-		clientSecret,
-		apiEndpoint,
-		tokenEndpoint,
-	)
+	return func(cmd *cobra.Command, args []string) error {
+		clientId, _ := cmd.Flags().GetString(config.ClientIdFlag)
+		clientSecret, _ := cmd.Flags().GetString(config.ClientSecretFlag)
+		apiEndpoint, _ := cmd.Flags().GetString(config.APIEndpointFlag)
+		tokenEndpoint, _ := cmd.Flags().GetString(config.TokenEndpointFlag)
+
+		err := config.WriteAuthenticationConfig(
+			clientId,
+			clientSecret,
+			apiEndpoint,
+			tokenEndpoint,
+		)
+
+		if err == nil {
+			fmt.Fprintf(iostreams.Out, "configuration updated!")
+		}
+		return err
+	}
 }
